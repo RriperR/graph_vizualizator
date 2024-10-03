@@ -1,7 +1,7 @@
 import subprocess
 import toml
 import os
-
+import re
 
 def get_commits_before_date(repo_path, before_date):
     """
@@ -29,6 +29,16 @@ def get_commits_before_date(repo_path, before_date):
     return commit_data
 
 
+def sanitize_message(message):
+    #Удаляет или экранирует специальные символы, которые могут нарушить синтаксис PlantUML
+
+    # Заменяем двоеточия, дефисы и другие специальные символы на пробелы или другие нейтральные символы
+    sanitized_message = re.sub(r'[:\-]', ' ', message)
+    # Удаляем любые другие потенциально проблемные символы
+    sanitized_message = re.sub(r'[^\w\s]', '', sanitized_message)
+
+    return sanitized_message
+
 def generate_plantuml(commit_data):
     """
     Генерирует текстовое представление графа в формате PlantUML
@@ -36,11 +46,13 @@ def generate_plantuml(commit_data):
     """
     uml = "@startuml\n"
     for commit in commit_data:
-        # Создаем узел для каждого коммита с его сообщением
-        uml += f"({commit['hash']}) : {commit['message']}\n"
+        # Очищаем сообщение коммита от спецсимволов
+        sanitized_message = sanitize_message(commit['message'])
+        # Создаем узел для каждого коммита с его сообщением, оборачиваем в кавычки
+        uml += f"\"{commit['hash']}\" : \"{sanitized_message}\"\n"
         # Добавляем зависимости от родительских коммитов
         for parent in commit['parents']:
-            uml += f"({commit['hash']}) --> ({parent})\n"
+            uml += f"\"{commit['hash']}\" --> \"{parent}\"\n"
     uml += "@enduml"
     return uml
 
