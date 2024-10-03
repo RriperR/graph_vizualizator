@@ -1,0 +1,4 @@
+[settings]
+visualization_tool_path = "E:/Python/PyCharmProjects/graphviz_tool/plantuml-1.2024.7.jar"
+repository_path = "E:/Python/PyCharmProjects/Q_tg_bot"
+before_date = "2024-10-01"
